@@ -19,18 +19,10 @@ DEV_LOGO = data["dev_logo"]
 
 TOKEN = os.environ["TOKEN"]
 DATABASE_KEY = os.environ["DATABASE_KEY"]
-OPEN_ROBOT_API = os.environ["OPEN_ROBOT_API"]
+
 my_secret = DATABASE_KEY
 
 AUTHOR_NAME = data["author_name"]
 AUTHOR_DISCRIMINATOR = data["discriminator"]
 
-GITHUB = data["github"]
 SUPPORT_SERVER = data["support_server"]
-JOIN_LEAVE_CHANNEL_ID = data["join_leave_channel_id"]
-
-MEME_PASS = "***qwerty123"
-# this is not the real pass, just to tell the website from where the API call is comming from.
-# yes you can use. but i suggest you to use your own.
-
-PRIVACY_POLICY = data["privacy_policy"]
