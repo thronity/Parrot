@@ -26,8 +26,6 @@ from utilities.config import (
     AUTHOR_NAME,
     AUTHOR_DISCRIMINATOR,
     MASTER_OWNER,
-    GITHUB,
-    SUPPORT_SERVER,
 )
 from utilities.database import parrot_db, cluster
 from utilities.checks import _can_run
@@ -77,14 +75,7 @@ class Parrot(commands.AutoShardedBot):
         self._CogMixin__cogs = commands.core._CaseInsensitiveDict()
         self._seen_messages = 0
         self._change_log = None
-        self._error_log_token = os.environ["CHANNEL_TOKEN1"]
         self.color = 0x87CEEB
-        self.topggpy = topgg.DBLClient(
-            self, dbl_token, autopost=True, post_shard_count=True
-        )
-        self.topgg_webhook = topgg.WebhookManager(self).dbl_webhook(
-            "/dblwebhook", f"{os.environ['TOPGG_AUTH']}"
-        )
         self.error_channel = None
         self.persistent_views_added = False
         self.spam_control = commands.CooldownMapping.from_cooldown(
@@ -114,10 +105,6 @@ class Parrot(commands.AutoShardedBot):
         return f"<core.{self.user.name}>"
 
     @property
-    def server(self) -> typing.Optional[discord.Guild]:
-        return self.get_guild(SUPPORT_SERVER_ID)  # Main server
-
-    @property
     def invite(self) -> str:
         clientID = self.user.id
         perms = discord.Permissions.none()
@@ -140,28 +127,6 @@ class Parrot(commands.AutoShardedBot):
             f"&redirect_uri={SUPPORT_SERVER}&scope=bot%20applications.commands"
         )
         return url
-
-    @property
-    def github(self) -> str:
-        return GITHUB
-
-    @property
-    def support_server(self) -> str:
-        return SUPPORT_SERVER
-
-    @async_property
-    async def change_log(self) -> typing.Optional[discord.Message]:
-        """For the command `announcement` to let the users know the most recent change"""
-        if self._change_log is None:
-            self._change_log = (
-                await self.get_channel(CHANGE_LOG_ID).history(limit=1).flatten()
-            )
-
-        return self._change_log[0]
-
-    @property
-    def author_obj(self) -> typing.Optional[discord.User]:
-        return self.get_user(MASTER_OWNER)
 
     @property
     def author_name(self) -> str:
