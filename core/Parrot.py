@@ -44,8 +44,6 @@ os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
 intents = discord.Intents.default()
 intents.members = True
 
-dbl_token = os.environ["TOPGG"]
-
 CHANGE_LOG_ID = 796932292458315776
 SUPPORT_SERVER_ID = 741614680652644382
 
