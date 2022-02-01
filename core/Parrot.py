@@ -27,15 +27,10 @@ from utilities.config import (
     AUTHOR_DISCRIMINATOR,
     MASTER_OWNER,
 )
-from utilities.database import parrot_db, cluster
-from utilities.checks import _can_run
 
 from time import time
 
 from .Context import Context
-
-collection = parrot_db["server_config"]
-collection_ban = parrot_db["banned_users"]
 
 os.environ["JISHAKU_HIDE"] = "True"
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
@@ -126,57 +121,6 @@ class Parrot(commands.AutoShardedBot):
         )
         return url
 
-    @property
-    def author_name(self) -> str:
-        return f"{AUTHOR_NAME}#{AUTHOR_DISCRIMINATOR}"  # cant join str and int, ofc
-
-    @async_property
-    async def db_latency(self) -> float:
-        ini = time()
-        _ = await collection.find_one({})
-        fin = time()
-        return fin - ini
-
-    def _clear_gateway_data(self) -> None:
-        one_week_ago = discord.utils.utcnow() - datetime.timedelta(days=7)
-        for _, dates in self.identifies.items():
-            to_remove = [index for index, dt in enumerate(dates) if dt < one_week_ago]
-            for index in reversed(to_remove):
-                del dates[index]
-
-        for _, dates in self.resumes.items():
-            to_remove = [index for index, dt in enumerate(dates) if dt < one_week_ago]
-            for index in reversed(to_remove):
-                del dates[index]
-
-    async def on_socket_raw_receive(self, msg) -> None:
-        self._prev_events.append(msg)
-
-    # async def on_ipc_ready(self):
-    #     """Called upon the IPC Server being ready"""
-    #     print("Ipc is ready.")
-
-    # async def on_ipc_error(self, endpoint, error):
-    #     """Called upon an error being raised within an IPC route"""
-    #     print(endpoint, "raised", error)
-
-    async def before_identify_hook(self, shard_id, *, initial):
-        self._clear_gateway_data()
-        self.identifies[shard_id].append(discord.utils.utcnow())
-        await super().before_identify_hook(shard_id, initial=initial)
-
-    async def db(self, db_name: str):
-        return cluster[db_name]
-
-    async def on_dbl_vote(self, data) -> None:
-        """An event that is called whenever someone votes for the bot on Top.gg."""
-        print(f"Received a vote:\n{data}")
-
-    async def on_autopost_success(self) -> None:
-        print(
-            f"Posted server count ({self.topggpy.guild_count}), shard count ({self.shard_count})"
-        )
-
     def run(self) -> None:
         """To run connect and login into discord"""
         super().run(TOKEN, reconnect=True)
@@ -221,18 +165,6 @@ class Parrot(commands.AutoShardedBot):
                 return
         else:
             self._auto_spam_count.pop(author_id, None)
-
-        if ctx.command is not None:
-            _true = await _can_run(ctx)
-            if await collection_ban.find_one({"_id": message.author.id}):
-                return
-            if not _true:
-                await ctx.reply(
-                    f"{ctx.author.mention} `{ctx.command.qualified_name}` is being disabled in "
-                    f"**{ctx.channel.mention}** by the staff!",
-                    delete_after=10.0,
-                )
-                return
 
         await self.invoke(ctx)
         await asyncio.sleep(0)
@@ -320,33 +252,10 @@ class Parrot(commands.AutoShardedBot):
             return msg
 
     async def get_prefix(self, message: discord.Message) -> str:
-        """Dynamic prefixing"""
-        try:
-            prefix = self.server_config[message.guild.id]["prefix"]
-        except KeyError:
-            if data := await collection.find_one({"_id": message.guild.id}):
-                prefix = data["prefix"]
-                post = data
-            else:
-                post = {
-                    "_id": message.guild.id,
-                    "prefix": "$",  # to make entry
-                    "mod_role": None,  # in database
-                    "action_log": None,
-                    "mute_role": None,
-                }
-                prefix = "$"  # default prefix
-                await collection.insert_one(post)
-            self.server_config[message.guild.id] = post
-        finally:
-            return commands.when_mentioned_or(prefix)(self, message)
+        return commands.when_mentioned_or("$")(self, message)
 
     async def get_guild_prefixes(self, guild: discord.Guild) -> typing.Optional[str]:
-        try:
-            return self.server_config[guild.id]["prefix"]
-        except KeyError:
-            if data := await collection.find_one({"_id": guild.id}):
-                return data.get("prefix")
+        return "$"
 
     async def send_raw(
         self, channel_id: int, content: str, **kwargs
