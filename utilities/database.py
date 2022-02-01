@@ -2,7 +2,7 @@ from utilities.config import my_secret
 import motor.motor_asyncio
 
 cluster = motor.motor_asyncio.AsyncIOMotorClient(
-    f"mongodb+srv://user:{my_secret}@cluster0.xjask.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+    f"mongodb+srv://thronity:{my_secret}@cluster0.xjask.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 )
 
 parrot_db = cluster["parrot_db"]
