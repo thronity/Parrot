@@ -61,7 +61,7 @@ class Parrot(commands.AutoShardedBot):
             case_insensitive=CASE_INSENSITIVE,
             intents=intents,
             activity=discord.Activity(
-                type=discord.ActivityType.listening, name="@Parrot config gsetup"
+                type=discord.ActivityType.listening, name="$help"
             ),
             status=discord.Status.dnd,
             strip_after_prefix=STRIP_AFTER_PREFIX,
